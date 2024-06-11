@@ -1,12 +1,18 @@
-import React, { createContext, useState, useEffect, ReactNode, useContext } from "react";
-import { ethers } from "ethers";
+import React, {
+  createContext,
+  useState,
+  useEffect,
+  ReactNode,
+  useContext,
+} from "react";
+import { errors, ethers } from "ethers";
 import { ABI } from "../../ABI";
 import dotenv from "dotenv";
 
 dotenv.config();
 
 // const CONTRACT_ADDRESS = process.env.CONTRACT_ADDRESS as string;
-const CONTRACT_ADDRESS = "0x6266018b6b119c8c4b4c564602ee0c59ecdf841c";
+const CONTRACT_ADDRESS = "0xDE39C67F8E0079a75A5F64203F3574bc4F0C7608";
 console.log("Contract address:", CONTRACT_ADDRESS);
 
 const contractABI = ABI;
@@ -18,7 +24,8 @@ interface ERC20ContextProps {
   transferFrom: (
     sender: string,
     recipient: string,
-    amount: string
+    amount: string,
+    approveAmount: string
   ) => Promise<void>;
   account: string | null;
 }
@@ -119,20 +126,29 @@ export const ERC20Provider: React.FC<{ children: ReactNode }> = ({
     }
   };
 
-  const transferFrom = async (from: string, to: string, amount: string) => {
+  const transferFrom = async (
+    from: string,
+    to: string,
+    amount: string,
+    approveAmount: string
+  ) => {
     if (contract && signer) {
-      try {
-        const tx = await contract.transferFrom(
-          from,
-          to,
-          ethers.utils.parseUnits(amount, 18)
-        );
-        await tx.wait();
+      if (amount <= approveAmount) {
+        try {
+          const tx = await contract.transferFrom(
+            from,
+            to,
+            ethers.utils.parseUnits(amount, 18)
+          );
+          await tx.wait();
 
-        alert("TransferFrom successful!");
-      } catch (error) {
-        console.error("Error transferring from:", error);
-        alert("Error transferring from");
+          alert("TransferFrom successful!");
+        } catch (error) {
+          console.error("Error transferring from:", (error as Error).message);
+          alert("Error transferring from");
+        }
+      } else {
+        alert("Amount exceeds approved amount");
       }
     } else {
       alert("Contract or signer not found");

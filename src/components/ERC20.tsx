@@ -1,10 +1,14 @@
 import React, { useContext, useState } from "react";
 import { useERC20 } from "../utils/contexts/ERC20Context";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 const ERC20: React.FC = () => {
   const { connectWallet, transfer, approve, transferFrom, account } =
     useERC20();
   const [recipient, setRecipient] = useState("");
+  const [approveAmount, setApproveAmount] = useState("");
   const [amount, setAmount] = useState("");
   const [spender, setSpender] = useState("");
   const [from, setFrom] = useState("");
@@ -27,10 +31,12 @@ const ERC20: React.FC = () => {
           <input
             type="text"
             placeholder="Amount"
-            value={amount}
-            onChange={(e) => setAmount(e.target.value)}
+            value={approveAmount}
+            onChange={(e) => setApproveAmount(e.target.value)}
           />
-          <button onClick={() => approve(spender, amount)}>Approve</button>
+          <button onClick={() => approve(spender, approveAmount)}>
+            Approve
+          </button>
         </div>
         <div>
           <h2>Transfer</h2>
@@ -69,7 +75,9 @@ const ERC20: React.FC = () => {
             value={amount}
             onChange={(e) => setAmount(e.target.value)}
           />
-          <button onClick={() => transferFrom(from, recipient, amount)}>
+          <button
+            onClick={() => transferFrom(from, recipient, amount, approveAmount)}
+          >
             TransferFrom
           </button>
         </div>
